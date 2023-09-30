@@ -6,15 +6,7 @@ import EmailPasswordStep from "./Steps/EmailPasswordStep";
 import PaymentMethodStep from "./Steps/PaymentMethodStep";
 import { FormWrapper } from "./styled";
 import { Button } from "@mui/material";
-
-type FormValues = {
-  fullName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  paymentMethod: "PayPal" | "Credit Card";
-  paymentDetails: string;
-};
+import { FormValues, PostData } from "./types";
 
 function RegistrationForm() {
   const {
@@ -35,7 +27,23 @@ function RegistrationForm() {
   });
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    console.log(data);
+    let _data: PostData = {
+      firstName: data.fullName.split(" ")[0],
+      lastName: data.fullName.split(" ")[1],
+      email: data.email,
+      password: data.password,
+      confirmPassword: data.confirmPassword,
+      paymentMethod: data.paymentMethod === "PayPal" ? {
+        type: "pp",
+        email: data.paymentDetails,
+      } : {
+        type: "cc",
+        email: data.paymentDetails,
+      }
+    };
+    console.log(_data);
+
+    return _data
   };
 
   const selectedPaymentMethod = watch("paymentMethod");

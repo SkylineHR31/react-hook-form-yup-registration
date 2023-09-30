@@ -1,6 +1,6 @@
 import React from "react";
-import { Controller } from "react-hook-form";
-import { StepTitle, StepWrapper } from "./styled";
+import { Controller, useFormContext } from "react-hook-form";
+import { ButtonsWrapper, StepTitle, StepWrapper, StyledButton } from "./styled";
 import {
   Alert,
   FormControlLabel,
@@ -8,22 +8,47 @@ import {
   RadioGroup,
   TextField,
 } from "@mui/material";
-
-type PaymentMethodInputProps = {
-  control: any; // костыль
-  name: string;
-  errors: any; // костыль
-  selectedMethod: "PayPal" | "Credit Card";
-};
+import { PaymentMethodInputProps } from "./types";
+import { PostData } from "../types";
 
 const PaymentMethodStep: React.FC<PaymentMethodInputProps> = ({
-  control,
   name,
-  errors,
-  selectedMethod,
+  onPrevStep,
 }) => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useFormContext();
+
+  const onSubmit = (data: any) => {
+    let _data: PostData = {
+      firstName: data.fullName.split(" ")[0],
+      lastName: data.fullName.split(" ")[1],
+      email: data.email,
+      password: data.password,
+      confirmPassword: data.confirmPassword,
+      paymentMethod:
+        data.paymentMethod === "PayPal"
+          ? {
+              type: "pp",
+              email: data.paymentDetails,
+            }
+          : {
+              type: "cc",
+              email: data.paymentDetails,
+            },
+    };
+    console.log(_data);
+
+    return _data;
+  };
+
+  const selectedPaymentMethod = watch("paymentMethod");
+
   return (
-    <>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <StepWrapper>
         <StepTitle component="label" htmlFor={name}>
           Payment method:
@@ -51,12 +76,14 @@ const PaymentMethodStep: React.FC<PaymentMethodInputProps> = ({
           )}
         />
         {!!errors[name] && (
-          <Alert severity="error">{errors[name]?.message}</Alert>
+          <Alert severity="error">{errors[name]?.message as string}</Alert>
         )}
       </StepWrapper>
       <StepWrapper>
         <StepTitle component="label" htmlFor={name}>
-          {selectedMethod === "PayPal" ? "Email for PayPal:" : "Card number:"}
+          {selectedPaymentMethod === "PayPal"
+            ? "Email for PayPal:"
+            : "Card number:"}
         </StepTitle>
         <Controller
           name="paymentDetails"
@@ -72,10 +99,25 @@ const PaymentMethodStep: React.FC<PaymentMethodInputProps> = ({
           )}
         />
         {!!errors.paymentDetails && (
-          <Alert severity="error">{errors.paymentDetails?.message}</Alert>
+          <Alert severity="error">
+            {errors.paymentDetails?.message as string}
+          </Alert>
         )}
+        <ButtonsWrapper component={"div"}>
+          <StyledButton
+            fullWidth
+            type="button"
+            variant="contained"
+            onClick={onPrevStep}
+          >
+            Previous step
+          </StyledButton>
+          <StyledButton fullWidth type="submit" variant="contained">
+            Submit
+          </StyledButton>
+        </ButtonsWrapper>
       </StepWrapper>
-    </>
+    </form>
   );
 };
 

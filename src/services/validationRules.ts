@@ -1,6 +1,16 @@
-import { yupResolver } from '@hookform/resolvers/yup';
-import { validationSchema } from './validationSchema';
+import { yupResolver } from "@hookform/resolvers/yup";
+import { fullNameValidationSchema } from "./fullNameSchema";
+import { emailPasswordValidationSchema } from "./emailPasswordSchema";
+import { paymentMethodValidationSchema } from "./paymentMethodScheme";
 
 export const validationRules = {
-  resolver: yupResolver(validationSchema),
+  fullName: {
+    resolver: yupResolver(fullNameValidationSchema),
+  },
+  emailPassword: {
+    resolver: yupResolver(emailPasswordValidationSchema),
+  },
+  paymentMethod: {
+    resolver: yupResolver(paymentMethodValidationSchema),
+  },
 };

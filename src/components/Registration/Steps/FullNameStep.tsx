@@ -1,41 +1,46 @@
-import { Alert, Box, TextField } from "@mui/material";
+import { Alert, TextField } from "@mui/material";
 import React from "react";
-import { Controller } from "react-hook-form";
-import { StepTitle, StepWrapper } from "./styled";
+import { Controller, useFormContext } from "react-hook-form";
+import { StepTitle, StepWrapper, StyledButton } from "./styled";
+import { FullNameInputProps } from "./types";
 
-type FullNameInputProps = {
-  control: any; // костыль
-  name: string;
-  errors: any; // костыль
-};
+const FullNameStep: React.FC<FullNameInputProps> = ({ name, onNextStep }) => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useFormContext();
+  const onSubmit = () => {
+    onNextStep();
+  };
 
-const FullNameStep: React.FC<FullNameInputProps> = ({
-  control,
-  name,
-  errors,
-}) => {
   return (
-    <StepWrapper>
-      <StepTitle component="label" htmlFor={name}>
-        First and last name:
-      </StepTitle>
-      <Controller
-        name={name}
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            fullWidth
-            variant="filled"
-            label="Full name"
-            id={name}
-          />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <StepWrapper>
+        <StepTitle component="label" htmlFor={name}>
+          First and last name:
+        </StepTitle>
+        <Controller
+          name={name}
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              fullWidth
+              variant="filled"
+              label="Full name"
+              id={name}
+            />
+          )}
+        />
+        {!!errors[name] && (
+          <Alert severity="error">{errors[name]?.message as string}</Alert>
         )}
-      />
-      {!!errors[name] && (
-        <Alert severity="error">{errors[name]?.message}</Alert>
-      )}
-    </StepWrapper>
+        <StyledButton type="submit" fullWidth variant="contained">
+          Next step
+        </StyledButton>
+      </StepWrapper>
+    </form>
   );
 };
 

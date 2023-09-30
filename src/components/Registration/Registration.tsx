@@ -1,73 +1,64 @@
-import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { validationSchema } from "../../services/validationSchema";
+import { FormProvider, useForm } from "react-hook-form";
+import { fullNameValidationSchema } from "../../services/fullNameSchema";
+import { useState } from "react";
 import FullNameStep from "./Steps/FullNameStep";
 import EmailPasswordStep from "./Steps/EmailPasswordStep";
 import PaymentMethodStep from "./Steps/PaymentMethodStep";
+import { Typography } from "@mui/material";
 import { FormWrapper } from "./styled";
-import { Button } from "@mui/material";
-import { FormValues, PostData } from "./types";
+import { FormValues } from "./types";
+import { emailPasswordValidationSchema } from "../../services/emailPasswordSchema";
+import { paymentMethodValidationSchema } from "../../services/paymentMethodScheme";
 
 function RegistrationForm() {
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-    watch,
-  } = useForm<FormValues>({
-    resolver: yupResolver(validationSchema) as any, // костыль, знаю :)
-    defaultValues: {
-      fullName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      paymentMethod: "PayPal",
-      paymentDetails: "",
-    },
+  const [step, setStep] = useState(1);
+
+  const getValidationSchema = () => {
+    switch (step) {
+      case 1:
+        return yupResolver(fullNameValidationSchema);
+      case 2:
+        return yupResolver(emailPasswordValidationSchema);
+      case 3:
+        return yupResolver(paymentMethodValidationSchema);
+      default:
+        return yupResolver(fullNameValidationSchema);
+    }
+  };
+  const methods = useForm<FormValues, any>({
+    resolver: getValidationSchema() as any,
   });
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
-    let _data: PostData = {
-      firstName: data.fullName.split(" ")[0],
-      lastName: data.fullName.split(" ")[1],
-      email: data.email,
-      password: data.password,
-      confirmPassword: data.confirmPassword,
-      paymentMethod: data.paymentMethod === "PayPal" ? {
-        type: "pp",
-        email: data.paymentDetails,
-      } : {
-        type: "cc",
-        email: data.paymentDetails,
-      }
-    };
-    console.log(_data);
-
-    return _data
+  const onNextStep = () => {
+    setStep((prevStep) => prevStep + 1);
   };
 
-  const selectedPaymentMethod = watch("paymentMethod");
+  const onPrevStep = () => {
+    setStep((prevStep) => prevStep - 1);
+  };
 
   return (
-    <FormWrapper component="form" onSubmit={handleSubmit(onSubmit)}>
-      <FullNameStep control={control} name="fullName" errors={errors} />
-      <EmailPasswordStep
-        control={control}
-        emailName="email"
-        passwordName="password"
-        confirmPasswordName="confirmPassword"
-        errors={errors}
-      />
-      <PaymentMethodStep
-        control={control}
-        name="paymentMethod"
-        errors={errors}
-        selectedMethod={selectedPaymentMethod}
-      />
-      <Button type="submit" fullWidth variant="contained">
-        Submit
-      </Button>
-    </FormWrapper>
+    <FormProvider {...methods}>
+      <Typography component="h1" fontSize="32px" textAlign="center">
+        Registration Form
+      </Typography>
+      <FormWrapper component="div">
+        {step === 1 && <FullNameStep name="fullName" onNextStep={onNextStep} />}
+        {step === 2 && (
+          <EmailPasswordStep
+            emailName="email"
+            passwordName="password"
+            confirmPasswordName="confirmPassword"
+            onNextStep={onNextStep}
+            onPrevStep={onPrevStep}
+          />
+        )}
+        {step === 3 && (
+          <PaymentMethodStep name="paymentMethod" onPrevStep={onPrevStep} />
+        )}
+      </FormWrapper>
+    </FormProvider>
   );
 }
 

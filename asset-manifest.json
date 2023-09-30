@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/react-hook-form-yup-registration/static/js/main.5802a960.js",
+    "main.js": "/react-hook-form-yup-registration/static/js/main.d066bc6e.js",
     "index.html": "/react-hook-form-yup-registration/index.html",
-    "main.5802a960.js.map": "/react-hook-form-yup-registration/static/js/main.5802a960.js.map"
+    "main.d066bc6e.js.map": "/react-hook-form-yup-registration/static/js/main.d066bc6e.js.map"
   },
   "entrypoints": [
-    "static/js/main.5802a960.js"
+    "static/js/main.d066bc6e.js"
   ]
 }
